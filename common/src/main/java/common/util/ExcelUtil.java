@@ -5,10 +5,21 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -64,6 +75,10 @@ public class ExcelUtil
 		} catch (IOException e)
 		{
 			e.printStackTrace();
+		} catch (ParseException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		} 
 		return null;
 	}
@@ -73,8 +88,12 @@ public class ExcelUtil
  * @param workbook
  * @param clazz
  * @return
+ * @throws IllegalAccessException 
+ * @throws InstantiationException 
+ * @throws InvocationTargetException 
+ * @throws ParseException 
  */
-	private static <T> List<T> importExcel(String sheetName,Workbook workbook,Class<T> clazz)
+	private static <T> List<T> importExcel(String sheetName,Workbook workbook,Class<T> clazz) throws InstantiationException, IllegalAccessException, InvocationTargetException, ParseException
 	{
 		Sheet sheet;
 		if(StringUtils.isNotEmpty(sheetName))
@@ -85,12 +104,64 @@ public class ExcelUtil
 			sheet=workbook.getSheetAt(0);
 		}
 		int rows=sheet.getPhysicalNumberOfRows();//获取物理（实际使用）列数
+		ArrayList<T> result=null;
 		if(rows>0)
 		{
-			
+			result=new ArrayList<T>();
+			Field[] fields=clazz.getDeclaredFields();//获取所有属性
+			Map<Integer, Field> filedMap=new HashMap<Integer,Field>();//将字段保存在map中 key为excel表格中的位置 从里开始
+			for(Field field:fields)
+			{
+				if(field.isAnnotationPresent(Excel.class))
+				{
+					Excel excel=field.getAnnotation(Excel.class);
+					Integer order=excel.order();
+					filedMap.put(order, field);
+				}
+			}
+			for(int i=1;i<rows;i++)//遍历所有列
+			{
+				Row row=sheet.getRow(i);
+				int nums=row.getPhysicalNumberOfCells();
+				T bean=clazz.newInstance();
+				for(int j=0;j<nums;j++)
+				{
+					Field name=filedMap.get(j);
+					if(name==null)
+					{
+						continue;
+					}
+					
+					Cell cell=row.getCell(j);
+					String value=null;
+					switch (cell.getCellTypeEnum())
+					{
+					case STRING:
+						value=cell.getStringCellValue();
+						break;
+					case NUMERIC:
+					    value=cell.getNumericCellValue()+"";
+						break;
+					default:
+						break;
+					}
+					if(Date.class==name.getType())
+					{
+						//日期也会被当成数字来读
+						Double d=Double.parseDouble(value);
+						Date date=new Date(d.longValue());
+						BeanUtils.setProperty(bean, name.getName(), date);
+					}else
+					{
+						BeanUtils.setProperty(bean, name.getName(), value);
+					}
+				}
+				result.add(bean);
+			}
 		}
-		return null;
+		return result;
 	}
+
 	/**
 	 * 
 	 * @param sheetName
@@ -108,16 +179,39 @@ public class ExcelUtil
 		} catch (IOException e)
 		{
 			e.printStackTrace();
+		} catch (InstantiationException e)
+		{
+			e.printStackTrace();
+		} catch (IllegalAccessException e)
+		{
+
+			e.printStackTrace();
+		} catch (InvocationTargetException e)
+		{
+			e.printStackTrace();
+		} catch (ParseException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return null;
 	}
-	public static <T> List<T> importXSSFExcel(String sheetName, InputStream is,Class<T> clazz) throws IOException
+	public static <T> List<T> importXSSFExcel(String sheetName, InputStream is,Class<T> clazz) throws IOException, ParseException
 	{
 		try
 		{
 			Workbook workbook=new XSSFWorkbook(is);
 			return importExcel(sheetName,workbook,clazz);
 		} catch (IOException e)
+		{
+			e.printStackTrace();
+		} catch (InstantiationException e)
+		{
+			e.printStackTrace();
+		} catch (IllegalAccessException e)
+		{
+			e.printStackTrace();
+		} catch (InvocationTargetException e)
 		{
 			e.printStackTrace();
 		}
