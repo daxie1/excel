@@ -8,14 +8,12 @@ import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -116,6 +114,7 @@ public class ExcelUtil
 				{
 					Excel excel=field.getAnnotation(Excel.class);
 					Integer order=excel.order();
+					field.setAccessible(true);
 					filedMap.put(order, field);
 				}
 			}
@@ -150,10 +149,26 @@ public class ExcelUtil
 						//日期也会被当成数字来读
 						Double d=Double.parseDouble(value);
 						Date date=new Date(d.longValue());
-						BeanUtils.setProperty(bean, name.getName(), date);
+						//BeanUtils.setProperty(bean, name.getName(), date);Beanutils中还要遍历属性，影响性能
+						name.set(bean, date);
 					}else
 					{
-						BeanUtils.setProperty(bean, name.getName(), value);
+						if(name.getType()==Integer.class)
+						{
+							name.setInt(bean,Integer.parseInt(value));
+						}else if(name.getType()==Double.class)
+						{
+							name.setDouble(bean, Double.parseDouble(value));
+						}else if(name.getType()==String.class)
+						{
+							name.set(bean,value);
+						}else if(name.getType()==Float.class)
+						{
+							name.setFloat(bean, Float.parseFloat(value));
+						}else if(name.getType()==Long.class)
+						{
+							name.setLong(bean, Long.parseLong(value));
+						}
 					}
 				}
 				result.add(bean);
@@ -161,9 +176,8 @@ public class ExcelUtil
 		}
 		return result;
 	}
-
 	/**
-	 * 
+	 * HSSF方式导入，只适用于excel2007以下版本
 	 * @param sheetName
 	 * @param is 输入
 	 * @param clazz
