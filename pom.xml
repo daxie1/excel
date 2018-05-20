@@ -20,8 +20,15 @@
     <artifactId>commons-lang3</artifactId>
     <version>3.7</version>
 </dependency>
+<dependency> 
+    <groupId>com.thoughtworks.xstream</groupId> 
+    <artifactId>xstream</artifactId> 
+    <version>1.4.3</version> 
+</dependency>
   </dependencies>
   <modules>
   	<module>common</module>
+  	<module>webProject</module>
+  	<module>weProject</module>
   </modules>
 </project>

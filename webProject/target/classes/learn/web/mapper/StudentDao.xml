@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="learn.web.dao.StudentDao">
+  <resultMap id="BaseResultMap" type="learn.web.bean.Student">
+    <result column="id" jdbcType="INTEGER" property="id" />
+    <result column="identify" jdbcType="VARCHAR" property="identify" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="age" jdbcType="INTEGER" property="age" />
+    <result column="startDate" jdbcType="DATE" property="startDate" />
+  </resultMap>
+  <insert id="insert" parameterType="learn.web.bean.Student">
+    insert into t_student (id, identify, "name", 
+      age, startDate)
+    values (#{id,jdbcType=INTEGER}, #{identify,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      #{age,jdbcType=INTEGER}, #{startDate,jdbcType=DATE})
+  </insert>
+  <insert id="insertSelective" parameterType="learn.web.bean.Student">
+    insert into t_student
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="identify != null">
+        identify,
+      </if>
+      <if test="name != null">
+        "name",
+      </if>
+      <if test="age != null">
+        age,
+      </if>
+      <if test="startDate != null">
+        startDate,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="identify != null">
+        #{identify,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="age != null">
+        #{age,jdbcType=INTEGER},
+      </if>
+      <if test="startDate != null">
+        #{startDate,jdbcType=DATE},
+      </if>
+    </trim>
+  </insert>
+  <sql id="allColumns">
+  id,identify,name,age,startDate
+  </sql>
+  <select id="getById" parameterType="Integer" resultMap="BaseResultMap">
+  SELECT
+  <include refid="allColumns"/>
+  FROM t_student
+  WHERE id=#{id}
+  </select>
+  
+  <select id=" getByCondition" parameterType="learn.web.bean.Student" resultMap="BaseResultMap">
+  SELECT
+  <include refid="allColumns"/>
+  FROM t_student
+  <where>
+  <if test="id!=null">
+  id=#{id}
+  </if>
+    <if test="identify!=null">
+  AND identify=#{identify}
+  </if>
+    <if test="name!=null">
+  AND name=#{name}
+  </if>
+    <if test="age!=null">
+  AND age=#{age}
+  </if>
+    <if test="startDate !=null">
+  AND startDate=#{startDate}
+  </if>
+  </where>
+  </select>
+  <update id="update" parameterType="learn.web.bean.Student">
+  UPDATE t_student
+  <set>
+    <if test="identify!=null">
+    identify=#{identify},
+  </if>
+    <if test="name!=null">
+  name=#{name},
+  </if>
+    <if test="age!=null">
+   age=#{age},
+  </if>
+    <if test="startDate !=null">
+  startDate=#{startDate}
+  </if>
+  </set>
+  WHERE id=#{id}
+  </update>
+  <select id="count" resultType="Long">
+  SELECT count(id)
+  FROM t_student
+  </select>
+</mapper>
