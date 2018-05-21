@@ -2,6 +2,8 @@ package learn.web.dao;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
+
 public interface IBaseDao<T>
 {
 	/**
@@ -40,6 +42,11 @@ public interface IBaseDao<T>
 	 * @return
 	 */
 	int update(T t);
-	
+	/**
+	 * 批量插入
+	 * @param t
+	 * @return
+	 */
+	int insertList(List<T> ts);
 	Long count();
 }

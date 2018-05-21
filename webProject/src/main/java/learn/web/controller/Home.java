@@ -20,7 +20,8 @@ public class Home
 	@RequestMapping("/")
 	public String index()
 	{
+		
 		logger.info("测试成功");
-		return "hello world"+studentService.count();
+		return "hello world";
 	}
 }

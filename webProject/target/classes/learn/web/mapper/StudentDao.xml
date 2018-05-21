@@ -9,11 +9,22 @@
     <result column="startDate" jdbcType="DATE" property="startDate" />
   </resultMap>
   <insert id="insert" parameterType="learn.web.bean.Student">
-    insert into t_student (id, identify, "name", 
+    insert into t_student (id, identify, name, 
       age, startDate)
     values (#{id,jdbcType=INTEGER}, #{identify,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{age,jdbcType=INTEGER}, #{startDate,jdbcType=DATE})
   </insert>
+    <!-- 批量插入 -->
+  <insert id="insertList" parameterType="java.util.List">
+    insert into t_student
+(id, identify, name, age, startDate)
+      VALUES
+      <foreach collection="list" item="item" separator="," index="index">
+      (#{item.id,jdbcType=INTEGER}, #{item.identify,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, 
+      #{item.age,jdbcType=INTEGER}, #{item.startDate,jdbcType=DATE})
+      </foreach>
+  </insert>
+
   <insert id="insertSelective" parameterType="learn.web.bean.Student">
     insert into t_student
     <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -24,7 +35,7 @@
         identify,
       </if>
       <if test="name != null">
-        "name",
+        name,
       </if>
       <if test="age != null">
         age,
@@ -60,7 +71,6 @@
   FROM t_student
   WHERE id=#{id}
   </select>
-  
   <select id=" getByCondition" parameterType="learn.web.bean.Student" resultMap="BaseResultMap">
   SELECT
   <include refid="allColumns"/>

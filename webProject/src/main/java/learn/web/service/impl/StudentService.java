@@ -1,6 +1,8 @@
 package learn.web.service.impl;
 
 
+import static org.hamcrest.CoreMatchers.nullValue;
+
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +16,7 @@ import learn.web.bean.Student;
 import learn.web.dao.StudentDao;
 @Service(value="studentService")
 @Transactional
-public class IStudentService implements learn.web.service.IStudentService
+public class StudentService implements learn.web.service.IStudentService
 {
 	@Autowired
 	private StudentDao studentDao;
@@ -61,18 +63,19 @@ public class IStudentService implements learn.web.service.IStudentService
 	@Override
 	public int insert(Student t)
 	{
-		return studentDao.insert(t);
+		return studentDao.insertSelective(t);
 	}
 
 	@Override
 	public int insertList(List<Student> ts)
 	{
-		int result=0;
-		for(Student student:ts)
+		if(ts==null||ts.size()==0)
 		{
-			result+=studentDao.insert(student);
+			return 0;
+		}else
+		{
+			return studentDao.insertList(ts);
 		}
-		return result;
 	}
 
 	@Override
