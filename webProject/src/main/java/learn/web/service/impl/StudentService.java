@@ -1,8 +1,9 @@
 package learn.web.service.impl;
 
-
-import static org.hamcrest.CoreMatchers.nullValue;
-
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 
+import common.util.ExcelUtil;
 import learn.web.bean.Student;
 import learn.web.dao.StudentDao;
 @Service(value="studentService")
@@ -117,5 +119,48 @@ public class StudentService implements learn.web.service.IStudentService
 	{
 		return studentDao.count();
 	}
+
+	@Override
+	public boolean insetBigData(List<Student> students) throws InterruptedException
+	{
+		int size=students.size();
+		int n=(int) ((size-1)/ServiceThread.MAX_SIZE+1);
+		List<Thread> threads=new ArrayList<>();
+		for(int i=1;i<=n;i++)
+		{
+			Thread thread=null;
+/*			if(i==1)
+			{
+				thread=new Thread(new ServiceThread(students.subList(0, i*ServiceThread.MAX_SIZE-1)));
+			}else
+			{
+				thread=new Thread(new ServiceThread(students.subList((i-1)*ServiceThread.MAX_SIZE-1, i*ServiceThread.MAX_SIZE-1)));
+			}*/
+			thread=new Thread(new ServiceThread(students.subList((i-1)*ServiceThread.MAX_SIZE, i*ServiceThread.MAX_SIZE)));
+			threads.add(thread);
+		}
+		for(Thread t:threads)
+		{
+			t.start();
+			t.join();
+		}
+		return true;	
+	}
+	
+	private class ServiceThread implements Runnable
+	{
+		public final static int MAX_SIZE=10000;//单线程插入的最大记录数
+		private List<Student> students;
+		public  ServiceThread(List<Student> list)
+		{
+			this.students=list;
+		}
+		@Override
+		public void run()
+		{
+			studentDao.insertList(students);
+		}
+	}
+
 
 }

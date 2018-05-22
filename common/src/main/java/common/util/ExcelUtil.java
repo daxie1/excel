@@ -155,7 +155,9 @@ public class ExcelUtil
 					{
 						if(name.getType()==Integer.class)
 						{
-							name.setInt(bean,Integer.parseInt(value));
+							Double d=Double.parseDouble(value);
+							//name.setInt(bean,d.intValue());
+							name.set(bean, d.intValue());
 						}else if(name.getType()==Double.class)
 						{
 							name.setDouble(bean, Double.parseDouble(value));

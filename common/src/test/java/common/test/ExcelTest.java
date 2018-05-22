@@ -19,7 +19,7 @@ public class ExcelTest
 		try(InputStream iStream=new FileInputStream(filePath))
 		{
 			List<Student> students=ExcelUtil.importXSSFExcel("", iStream,Student.class);
-			assertEquals("p2018051800001", students.get(0).getIdentify());
+			assertEquals(28, students.get(0).getAge());
 		} catch (Exception e)
 		{
 			e.printStackTrace();

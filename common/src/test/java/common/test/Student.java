@@ -11,7 +11,7 @@ public class Student
 	@Excel(name="姓名",order=2)
 	private String name;
 	@Excel(name="年龄",order=3)
-	private int age;
+	private Integer age;
 	@Excel(name="入学日期",order=4)
 	private Date startDate;
 	public String getIdentify()

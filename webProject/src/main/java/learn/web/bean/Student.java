@@ -3,18 +3,19 @@ package learn.web.bean;
 import java.io.Serializable;
 import java.util.Date;
 
+import common.util.Excel;
+
 public class Student implements Serializable{
 
 	private static final long serialVersionUID = 1L;
-
 	private Integer id;
-
+	@Excel(name="学号",order=1)
     private String identify;
-
+	@Excel(name="姓名",order=2)
     private String name;
-
+	@Excel(name="年龄",order=3)
     private Integer age;
-
+	@Excel(name="入学日期",order=4)
     private Date startDate;
 
     public Integer getId() {
