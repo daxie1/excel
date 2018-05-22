@@ -71,7 +71,7 @@
   FROM t_student
   WHERE id=#{id}
   </select>
-  <select id=" getByCondition" parameterType="learn.web.bean.Student" resultMap="BaseResultMap">
+  <select id="getByCondition" parameterType="learn.web.bean.Student" resultMap="BaseResultMap">
   SELECT
   <include refid="allColumns"/>
   FROM t_student

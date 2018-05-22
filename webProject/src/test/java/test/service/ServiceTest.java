@@ -21,6 +21,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.github.pagehelper.PageInfo;
+
 import common.util.ExcelUtil;
 import learn.web.bean.Student;
 import learn.web.service.IStudentService;
@@ -35,7 +37,7 @@ public class ServiceTest
 	@Test
 	public void serviceTest()
 	{
-		String fileName="C:\\Users\\yu\\Desktop\\student.xlsx";
+		/*String fileName="C:\\Users\\yu\\Desktop\\student.xlsx";
 		try(InputStream iStream=new FileInputStream(fileName))
 		{
 			List<Student> students=ExcelUtil.importXSSFExcel("", iStream, Student.class);
@@ -45,7 +47,11 @@ public class ServiceTest
 		} catch (Exception e)
 		{
 			logger.error(e.getMessage());
-		}
+		}*/
+		Student student=new Student();
+		student.setAge(28);
+		PageInfo<Student> pageInfo=studentService.getListToPage(student, 1, 10);
+		assertEquals(10, pageInfo.getList().size());
 	}
 
 	public IStudentService getStudentService()
